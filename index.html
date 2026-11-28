@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><title>EmrChat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#6366f1">
+<style>
+:root{--bg:#eef0f6;--p:#fff;--p2:#f0f2f8;--tx:#1b1d2a;--mu:#7a8094;--ac:#6366f1;--ac2:#8b5cf6;--ok:#22c55e;--no:#ef4444;--sh:0 4px 20px #0001}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1117;--p:#181b25;--p2:#232735;--tx:#eceef6;--mu:#8e94a8;--sh:0 4px 20px #0006;color-scheme:dark}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit;color:inherit}button{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0;border-radius:10px;padding:8px 13px;cursor:pointer}button.g{background:var(--p2);color:var(--tx)}button.r{background:var(--no)}button.k{background:var(--ok)}button:disabled{opacity:.4}
+input{background:var(--p2);border:1px solid transparent;border-radius:10px;padding:10px 12px;width:100%;outline:0}input:focus{border-color:var(--ac)}
+#auth{max-width:360px;margin:9vh auto;background:var(--p);padding:28px;border-radius:20px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh)}
+h1{margin:0;font-size:34px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mu{color:var(--mu);font-size:13px}.err{color:var(--no);font-size:13px;min-height:16px}
+#app{display:none;height:100%;grid-template-columns:330px 1fr;gap:12px;padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.side,.chat{background:var(--p);border-radius:18px;display:flex;flex-direction:column;min-height:0;height:100%;box-shadow:var(--sh);overflow:hidden}
+.hd{padding:12px;display:flex;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--p2)}.hd>span{display:flex;align-items:center;gap:6px;min-width:0}
+.tabs{display:flex;gap:6px;padding:8px 12px}.tabs button{flex:1;background:var(--p2);color:var(--mu)}.tabs button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.row{padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:6px;cursor:pointer;border-radius:12px;margin:0 6px}.row:hover,.row.on{background:var(--p2)}.row>span{display:flex;align-items:center;min-width:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mu);margin-right:6px;flex:none}.dot.on{background:var(--ok)}
+.bd{background:var(--no);color:#fff;border-radius:10px;padding:1px 7px;font-size:12px}.sec{padding:10px 14px 2px;font-size:12px;text-transform:uppercase;color:var(--mu)}
+#list{overflow:auto;flex:1;padding-bottom:8px}#msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.m{max-width:78%;padding:8px 12px;border-radius:16px 16px 16px 4px;background:var(--p);box-shadow:var(--sh);overflow-wrap:anywhere}.m.me{align-self:flex-end;border-radius:16px 16px 4px 16px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.m img{max-width:100%;border-radius:10px;display:block}.m audio{max-width:100%;height:36px}.m small{display:block;opacity:.7;font-size:11px;text-align:right}.m .who{font-size:12px;font-weight:700;color:var(--ac)}
+.send{display:flex;gap:8px;padding:10px;border-top:1px solid var(--p2);align-items:center}.send button.rec{background:var(--no)}#ty{height:18px;padding:0 14px;font-size:12px;color:var(--mu)}
+.av{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2)) center/cover;color:#fff;font-weight:700;margin-right:8px;flex:none}
+.f-blue{box-shadow:0 0 0 3px #5865f2}.f-green{box-shadow:0 0 0 3px #22c55e}.f-neon{box-shadow:0 0 0 2px #0ff,0 0 10px 3px #0ff}.f-gold{box-shadow:0 0 0 3px gold,0 0 12px gold}
+.tg{font-size:10px;font-weight:700;background:var(--p2);border-radius:5px;padding:1px 5px;margin-left:5px}.tg.DEV{background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff}.tg.VIP,.tg.PRO,.tg.OG,.tg.STAR{background:linear-gradient(135deg,#f59e0b,#fde047);color:#4a3200}
+.rb{background:linear-gradient(90deg,#f33,#fa0,#3c3,#0cf,#a5f,#f33);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rb 3s linear infinite}@keyframes rb{to{background-position:200%}}
+#vid{display:none;position:relative;background:#000;height:34vh}#rv{width:100%;height:100%;object-fit:contain}#lv{position:absolute;right:8px;bottom:8px;width:90px;border-radius:10px}
+#inc{display:none;padding:10px 14px;background:var(--ok);color:#fff;gap:8px;align-items:center;justify-content:space-between}#back{display:none}.empty{margin:auto;color:var(--mu)}
+.mod{display:none;position:fixed;inset:0;background:#0009;align-items:center;justify-content:center;z-index:9}.mod>div{background:var(--p);padding:20px;border-radius:18px;width:min(420px,94vw);max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:9px}
+.pk{display:flex;gap:6px;flex-wrap:wrap}.pk button{background:var(--p2);color:var(--tx);min-width:36px}.pk button.on{outline:2px solid var(--ac)}.pk button:disabled{opacity:.3}
+hr{border:0;border-top:1px solid var(--p2);width:100%;margin:6px 0}.line{display:flex;gap:6px;align-items:center;justify-content:space-between}
+@media(max-width:760px){#app{grid-template-columns:1fr;padding:0;gap:0}.side,.chat{border-radius:0}.chat{display:none}#app.open .side{display:none}#app.open .chat{display:flex}#back{display:inline-block}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;z-index:99;display:none;max-width:90vw;box-shadow:0 4px 20px #0006}</style></head><body>
+<div id="auth"><h1>EmrChat</h1><div class="mu">Telefon numarası yok. Sadece kullanıcı adı ve şifre.</div>
+<input id="au" placeholder="kullanıcı adı (a-z, 0-9, _)" autocapitalize="none" maxlength="16"><input id="ap" type="password" placeholder="şifre (min 6)">
+<div class="err" id="ae"></div><button id="reg">Kayıt ol</button><button id="log" class="g">Giriş yap</button><div class="mu" id="st" style="font-size:12px;text-align:center">Kontrol ediliyor...</div><div class="mu" style="text-align:center">© 2026 Emre Yıldız</div></div>
+<div id="app"><div class="side"><div class="hd"><span id="who"></span><button class="g" id="set">⚙</button></div>
+<div class="tabs"><button id="t1" class="on">💬 Sohbet</button><button id="t2">🔍 Ara</button><button id="t3">➕ Grup</button></div>
+<div id="sb" style="display:none;padding:0 12px 6px"><input id="sq" placeholder="Kullanıcı veya grup ara..." autocapitalize="none"></div>
+<div class="err" id="fe" style="padding:0 14px"></div><div id="list"></div></div>
+<div class="chat"><div class="hd"><span><button class="g" id="back">←</button><span id="peer"><b>Bir sohbet seç</b></span></span><span><button class="g" id="rp" style="display:none">⚠</button><button class="g" id="ca">🎤</button><button class="g" id="cv">📹</button><button class="r" id="ce" style="display:none">Bitir</button></span></div>
+<div id="inc"><span id="it"></span><span><button class="k" id="ia">Kabul</button> <button class="r" id="id">Reddet</button></span></div>
+<div id="vid"><video id="rv" autoplay playsinline muted></video><video id="lv" autoplay playsinline muted></video></div>
+<div id="msgs"><div class="empty">Sohbet başlatmak için soldan seç</div></div><div id="ty"></div>
+<div class="send"><button class="g" id="pic" disabled>🖼</button><button class="g" id="mic" disabled>🎤</button><input id="file" type="file" accept="image/*" hidden><input id="mi" placeholder="Mesaj yaz..." disabled><button id="ms" disabled>➤</button></div></div></div>
+<div id="toast"></div>
+<div class="mod" id="gm"><div><b>Yeni grup</b><input id="gn" placeholder="Grup adı" maxlength="24"><label class="line"><span>Herkese açık (aramada çıksın)</span><input type="checkbox" id="gp" style="width:auto"></label><div class="mu">Arkadaşlarından üye seç</div><div id="gl"></div><div class="err" id="ge"></div><div class="line"><button id="gc">Oluştur</button><button class="g" id="gx">Kapat</button></div></div></div>
+<div class="mod" id="mod"><div id="sbox"></div></div><audio id="ra" autoplay></audio>
+<script>
+const $=i=>document.getElementById(i),E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const B=(t,c,f)=>{const b=E('button',c,t);b.onclick=e=>{e.stopPropagation();f(e)};return b};
+const COL=['','#ef4444','#f59e0b','#22c55e','#06b6d4','#a855f7','#ec4899','rainbow'],FRM=['','blue','green','neon','gold'],BDG=['','🔥','⭐','🎮','💎','🚀','👑'],SP=['VIP','PRO','OG','STAR'];
+const V='3.0';let saving=false,ws,me,D={friends:[],reqs:[],sent:[],groups:[],mp:{},reports:[]},cur,hist=[],tab=1,ice=[],pc,stream,pend,cq=[],tyT,lastTy=0,dr={},PCH={},RS=null,rec,chunks;
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',4000)}
+fetch('/api/status').then(r=>r.json()).then(s=>{const m=[];if(s.version!==V)m.push('⚠ Sayfa v'+V+' ama sunucu v'+s.version+': GitHub dosyaları uyumsuz.');if(s.db!=='bulut')m.push('⚠ Veritabanı geçici (Turso bağlı değil), veriler silinebilir.');if(!s.ok)m.push('⚠ Veritabanı hatası: '+s.error);$('st').textContent=m.join(' ')||'Sürüm '+V+' ✓ · Veritabanı bağlı ('+s.users+' kullanıcı)';$('st').style.color=m.length?'var(--no)':'var(--mu)'}).catch(()=>{$('st').textContent='⚠ Sunucuya ulaşılamıyor.'});
+const accts=()=>{try{return JSON.parse(localStorage.getItem('emr_a')||'{}')}catch{return{}}};
+const tx=o=>ws&&ws.readyState==1&&ws.send(JSON.stringify(o));
+async function api(p,b,t){const r=await fetch('/api/'+p,{method:'POST',headers:{'Content-Type':'application/json',...(t?{Authorization:'Bearer '+t}:{})},body:JSON.stringify(b)});const j=await r.json();if(!r.ok)throw new Error(j.e);return j}
+async function go(p){try{const n=$('au').value.trim().toLowerCase(),j=await api(p,{name:n,pass:$('ap').value});const a=accts();a[n]=j.token;localStorage.setItem('emr_a',JSON.stringify(a));localStorage.setItem('emr',j.token);connect()}catch(e){$('ae').textContent=e.message}}
+$('reg').onclick=()=>go('register');$('log').onclick=()=>go('login');
+function logout(){const a=accts();delete a[me];localStorage.setItem('emr_a',JSON.stringify(a));const k=Object.keys(a)[0];k?localStorage.setItem('emr',a[k]):localStorage.removeItem('emr');location.reload()}
+function connect(){const t=localStorage.getItem('emr');if(!t)return;
+  ws=new WebSocket((location.protocol=='https:'?'wss://':'ws://')+location.host+'/ws?token='+t);
+  ws.onopen=()=>{$('auth').style.display='none';$('app').style.display='grid';fetch('/api/ice').then(r=>r.json()).then(s=>ice=s).catch(()=>{});if(cur)tx({t:'hist',to:cur});clearInterval(ws.hb);ws.hb=setInterval(()=>tx({t:'ping'}),25000)};
+  ws.onclose=e=>{if(e.code==4002){alert('Hesabın yasaklandı.');logout()}else if(e.code==4001){localStorage.removeItem('emr');location.reload()}else setTimeout(connect,2000)};
+  ws.onmessage=e=>on(JSON.parse(e.data))}
+const P=n=>PCH[n]||{};
+function av(n,p=P(n),grp){const d=E('span','av'+(p.frame?' f-'+p.frame:''));if(p.avatar)d.style.backgroundImage='url('+p.avatar+')';else d.textContent=(grp?'👥':n[0].toUpperCase());return d}
+function nm(n,p=P(n)){const s=E('span'),b=E('b',p.color=='rainbow'?'rb':'',p.nick||'@'+n);if(p.color&&p.color!='rainbow')b.style.color=p.color;if(p.badge)s.append(p.badge+' ');s.append(b);if(p.tag)s.append(E('span','tg '+p.tag,p.tag));return s}
+function G(id){return D.groups.find(g=>'#'+g.id==id)}
+function hdr(){$('who').replaceChildren(av(me),nm(me));if(!cur)return;const g=cur[0]=='#';
+  $('peer').replaceChildren(...(g?[av('g',{},1),E('b','',(G(cur)||{name:'Grup'}).name)]:[av(cur),nm(cur)]));$('rp').style.display=g?'none':'';$('ca').style.display=$('cv').style.display=g?'none':''}
+function on(m){switch(m.t){
+  case'init':D=m;me=m.me;PCH[me]=m.mp;m.friends.forEach(f=>PCH[f.name]=f.p);m.reqs.forEach(r=>PCH[r.name]=r.p);{const a=accts();a[me]=localStorage.getItem('emr');localStorage.setItem('emr_a',JSON.stringify(a))}hdr();list();if(saving){saving=false;toast('Profil kaydedildi ✓')}if($('mod').style.display=='flex')build();break;
+  case'err':saving=false;toast(m.e);$('fe').textContent=m.e;$('ge').textContent=m.e;if($('se'))$('se').textContent=m.e;break;
+  case'info':toast(m.e);break;
+  case'presence':{const f=D.friends.find(x=>x.name==m.name);if(f){f.online=m.online;list()}break}
+  case'hist':if(m.with==cur){hist=m.msgs;draw()}{const f=D.friends.find(x=>x.name==m.with);if(f){f.unread=0;list()}}break;
+  case'msg':{const k=m.to[0]=='#'?m.to:(m.fr==me?m.to:m.fr);if(k==cur){hist.push(m);draw();if(m.fr!=me&&k[0]!='#')tx({t:'read',to:cur})}else if(m.fr!=me){const f=D.friends.find(x=>x.name==k);if(f){f.unread++;list()}ping(m)}break}
+  case'read':if(m.by==cur){hist.forEach(x=>{if(x.fr==me)x.rd=1});draw()}break;
+  case'typing':if(m.from==cur){$('ty').textContent='yazıyor...';clearTimeout(tyT);tyT=setTimeout(()=>$('ty').textContent='',2500)}break;
+  case'results':RS=m;m.users.forEach(u=>PCH[u.name]=u.p);list();break;
+  case'sig':sig(m)}}
+function ping(m){document.title='(•) EmrChat';try{if(Notification.permission=='granted'&&document.hidden)new Notification(m.fr,{body:m.text||(m.aud?'🎤 Sesli mesaj':'📷 Fotoğraf')})}catch(e){}}
+onfocus=()=>document.title='EmrChat';
+function setTab(n){tab=n;[1,2].forEach(i=>$('t'+i).className=i==n?'on':'');$('sb').style.display=n==2?'block':'none';if(n==2)$('sq').focus();list()}
+$('t1').onclick=()=>setTab(1);$('t2').onclick=()=>setTab(2);$('t3').onclick=()=>{buildG();$('gm').style.display='flex'};
+let sqT;$('sq').oninput=()=>{clearTimeout(sqT);sqT=setTimeout(()=>{const q=$('sq').value.trim();q?tx({t:'search',q}):(RS=null,list())},300)};
+function row(n,left,btns=[],cls=''){const d=E('div','row'+(cls?' '+cls:''));const s=E('span');s.append(...left);d.append(s,...btns);return d}
+function list(){$('t1').textContent='💬 Sohbet'+(D.reqs.length?' ('+D.reqs.length+')':'');const L=$('list');L.textContent='';const sec=t=>L.append(E('div','sec',t));
+  if(tab==2){if(!RS){L.append(E('div','sec','Aramak için yaz'));return}
+    sec('Kullanıcılar');RS.users.forEach(u=>L.append(row(u.name,[av(u.name),nm(u.name)],[u.friend?B('Mesaj','g',()=>{setTab(1);open(u.name)}):D.sent.includes(u.name)?E('span','mu','İstek gitti'):B('Ekle','',()=>{tx({t:'add',to:u.name});$('fe').textContent='';toast('İstek gönderildi: @'+u.name)})])));
+    if(!RS.users.length)L.append(E('div','sec','Bulunamadı'));
+    sec('Gruplar');RS.groups.forEach(g=>L.append(row(g.id,[av('g',{},1),E('b','',g.name)],[G('#'+g.id)?B('Aç','g',()=>{setTab(1);open('#'+g.id)}):B('Katıl','',()=>tx({t:'gjoin',gid:g.id}))])));return}
+  if(D.reqs.length){sec('İstekler');D.reqs.forEach(r=>L.append(row(r.name,[av(r.name),nm(r.name)],[B('✓','k',()=>tx({t:'resp',to:r.name,ok:1})),B('✕','r',()=>tx({t:'resp',to:r.name,ok:0}))])))}
+  sec('Arkadaşlar ('+D.friends.length+')');[...D.friends].sort((a,b)=>b.online-a.online).forEach(f=>{const d=E('i','dot'+(f.online?' on':''));
+    const r=row(f.name,[d,av(f.name),nm(f.name)],f.unread?[E('span','bd',f.unread)]:[],f.name==cur?'on':'');r.onclick=()=>open(f.name);L.append(r)});
+  if(D.groups.length){sec('Gruplar');D.groups.forEach(g=>{const r=row(g.id,[av('g',{},1),E('b','',g.name),E('span','mu',' · '+g.c)],[B('Ayrıl','g',()=>{if(confirm('Gruptan ayrılsın mı?')){tx({t:'gleave',gid:g.id});if(cur=='#'+g.id){cur=null}}})],'#'+g.id==cur?'on':'');r.onclick=()=>open('#'+g.id);L.append(r)})}
+  if(D.sent.length){sec('Gönderilenler');D.sent.forEach(n=>L.append(row(n,[av(n),nm(n)])))}}
+function open(n){cur=n;hist=[];hdr();$('app').classList.add('open');$('mi').disabled=$('ms').disabled=$('pic').disabled=$('mic').disabled=false;$('msgs').textContent='';tx({t:'hist',to:n});list()}
+$('back').onclick=()=>$('app').classList.remove('open');
+function draw(){const M=$('msgs');M.textContent='';const g=cur&&cur[0]=='#';hist.forEach(v=>{const e=E('div','m'+(v.fr==me?' me':''));
+  if(g&&v.fr!=me)e.append(E('div','who',P(v.fr).nick||v.fr));
+  if(v.img){const i=E('img');i.src=v.img;e.append(i)}if(v.aud){const a=E('audio');a.controls=true;a.src=v.aud;e.append(a)}if(v.text)e.append(v.text);
+  e.append(E('small','',new Date(v.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+(!g&&v.fr==me?(v.rd?' ✓✓':' ✓'):'')));M.append(e)});M.scrollTop=M.scrollHeight}
+function snd(){const t=$('mi').value.trim();if(t&&cur){tx({t:'msg',to:cur,text:t});$('mi').value=''}}
+$('ms').onclick=snd;$('mi').onkeydown=e=>{if(e.key=='Enter')snd()};$('mi').oninput=()=>{if(cur&&cur[0]!='#'&&Date.now()-lastTy>1500){lastTy=Date.now();tx({t:'typing',to:cur})}};
+$('pic').onclick=()=>$('file').click();
+$('file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f||!cur)return;const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height)),c=E('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);tx({t:'msg',to:cur,img:c.toDataURL('image/jpeg',.7)})};im.src=URL.createObjectURL(f)};
+$('mic').onclick=async()=>{if(rec&&rec.state=='recording'){rec.stop();return}
+  try{const s=await navigator.mediaDevices.getUserMedia({audio:true}),mt=['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||'',to=cur;
+    rec=new MediaRecorder(s,mt?{mimeType:mt,audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});chunks=[];rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=()=>{s.getTracks().forEach(t=>t.stop());$('mic').textContent='🎤';$('mic').classList.remove('rec');const b=new Blob(chunks,{type:rec.mimeType});if(b.size>800000)return alert('Ses çok uzun.');const fr=new FileReader();fr.onload=()=>tx({t:'msg',to,aud:fr.result});fr.readAsDataURL(b)};
+    rec.start();$('mic').textContent='⏹ Gönder';$('mic').classList.add('rec');setTimeout(()=>rec.state=='recording'&&rec.stop(),60000)}catch(e){alert('Mikrofon açılamadı: '+e.name)}};
+$('rp').onclick=()=>{const r=prompt('@'+cur+' kullanıcısını neden şikayet ediyorsun?');if(r)tx({t:'report',to:cur,reason:r})};
+// --- Grup oluştur ---
+function buildG(){$('gn').value='';$('ge').textContent='';const L=$('gl');L.textContent='';D.friends.forEach(f=>{const l=E('label','line');l.append(E('span','',f.name));const c=E('input');c.type='checkbox';c.value=f.name;c.style.width='auto';l.append(c);L.append(l)});if(!D.friends.length)L.append(E('div','mu','Önce arkadaş ekle.'))}
+$('gc').onclick=()=>{tx({t:'gcreate',name:$('gn').value,pub:$('gp').checked,members:[...$('gl').querySelectorAll('input:checked')].map(c=>c.value)});$('gm').style.display='none'};$('gx').onclick=()=>$('gm').style.display='none';
+// --- Ayarlar ---
+function pick(arr,key,lab,lock){const c=E('div','pk');arr.forEach(v=>{const b=E('button',(dr[key]||'')==v?'on':'',lab(v));b.disabled=!D.ow&&lock&&lock(v);b.onclick=()=>{dr[key]=v;build()};if(key=='color'&&v&&v!='rainbow')b.style.color=v;c.append(b)});return c}
+function build(){const S=$('sbox');S.textContent='';const add=(...x)=>S.append(...x),h=t=>add(E('b','',t)),mu=t=>add(E('div','mu',t));
+  h('Profil');const pv=E('div','line');pv.append(E('span'));add(pv);pv.firstChild.append(av(me,dr),nm(me,dr));
+  const ni=E('input');ni.placeholder='Takma isim (en fazla 20)';ni.maxLength=20;ni.value=dr.nick||'';ni.oninput=()=>{dr.nick=ni.value;pv.firstChild.replaceChildren(av(me,dr),nm(me,dr))};add(ni);
+  const pp=E('div','line');const pf=E('input');pf.type='file';pf.accept='image/*';pf.hidden=true;pf.onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=E('canvas'),s=Math.min(im.width,im.height);c.width=c.height=128;c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);dr.avatar=c.toDataURL('image/jpeg',.8);build()};im.src=URL.createObjectURL(f)};
+  pp.append(B('Fotoğraf seç','g',()=>pf.click()),B('Kaldır','g',()=>{dr.avatar='';build()}),pf);add(pp);
+  mu(D.owner?'Etiket: kurucu olarak etiketin DEV':'Etiket (2-4 harf/rakam) veya özel etiket');
+  if(!D.owner){const ti=E('input');ti.placeholder='Etiket';ti.maxLength=4;ti.value=dr.tag&&!SP.includes(dr.tag)?dr.tag:'';ti.oninput=()=>{dr.tag=ti.value.toUpperCase();pv.firstChild.replaceChildren(av(me,dr),nm(me,dr))};add(ti);
+    const sp=E('div','pk');['',...SP].forEach(v=>{const b=E('button',dr.tag==v&&v?'on':'',v||'–');b.disabled=v&&!D.ow;b.onclick=()=>{dr.tag=v;build()};sp.append(b)});add(sp)}
+  mu('İsim rengi');add(pick(COL,'color',v=>v?v=='rainbow'?'🌈':'●':'–'));mu('Çerçeve');add(pick(FRM,'frame',v=>v||'–',v=>v=='gold'));mu('Rozet');add(pick(BDG,'badge',v=>v||'–',v=>v=='👑'));
+  add(B('Profili kaydet','',()=>{tx({t:'profile',p:{avatar:dr.avatar||'',tag:D.owner?'':(dr.tag||''),color:dr.color||'',frame:dr.frame||'',badge:dr.badge||'',nick:dr.nick||''}});saving=true;toast('Profil kaydediliyor...')}));
+  add(E('hr'));h('Hesap');const op=E('input'),np=E('input');op.type=np.type='password';op.placeholder='Eski şifre';np.placeholder='Yeni şifre (min 6)';add(op,np);
+  add(B('Şifreyi değiştir','g',async()=>{try{await api('password',{op:op.value,np:np.value},localStorage.getItem('emr'));$('se').textContent='Şifre değişti.';op.value=np.value=''}catch(e){$('se').textContent=e.message}}));
+  mu('Kayıtlı hesaplar');Object.keys(accts()).forEach(n=>{const l=E('div','line');l.append(E('span','',(n==me?'✓ ':'')+'@'+n));if(n!=me)l.append(B('Geç','g',()=>{localStorage.setItem('emr',accts()[n]);location.reload()}));add(l)});
+  add(B('+ Başka hesapla giriş','g',()=>{localStorage.removeItem('emr');location.reload()}),B('Çıkış yap','g',logout),B('Hesabımı sil','r',async()=>{const p=prompt('Hesap kalıcı silinecek. Şifreni yaz:');if(!p)return;try{await api('delete',{op:p},localStorage.getItem('emr'));logout()}catch(e){$('se').textContent=e.message}}));
+  if(D.owner){add(E('hr'));h('👑 Kurucu paneli');const u=E('input');u.placeholder='kullanıcı adı';u.autocapitalize='none';add(u);const l=E('div','line');
+    l.append(B('Banla','r',()=>tx({t:'ban',to:u.value.trim(),on:1})),B('Banı kaldır','g',()=>tx({t:'ban',to:u.value.trim(),on:0})),B('Özel ver','k',()=>tx({t:'grant',to:u.value.trim(),on:1})),B('Al','g',()=>tx({t:'grant',to:u.value.trim(),on:0})));add(l);
+    mu('Şikayetler ('+D.reports.length+')');D.reports.forEach(r=>{const x=E('div','line');x.append(E('span','','@'+r.fr+' → @'+r.target+': '+r.reason));const bb=E('span');bb.append(B('Banla','r',()=>tx({t:'ban',to:r.target,on:1})),B('Kapat','g',()=>tx({t:'rclose',id:r.id})));x.append(bb);add(x)})}
+  const se=E('div','err');se.id='se';add(se,B('Kapat','g',()=>$('mod').style.display='none'))}
+$('set').onclick=()=>{dr={...D.mp};build();$('mod').style.display='flex'};
+// --- Arama (WebRTC) ---
+const S=(to,kind,data)=>tx({t:'sig',to,kind,data});
+async function mk(to,video){try{stream=await navigator.mediaDevices.getUserMedia({audio:true,video})}catch(e){alert('Kamera/mikrofon açılamadı: '+e.name+'. Tarayıcı izinlerini kontrol et.');return false}
+  pc=new RTCPeerConnection({iceServers:ice});pc.onconnectionstatechange=()=>{if(pc&&pc.connectionState=='failed'){alert('Bağlantı kurulamadı. Farklı ağlardaysanız sunucuda TURN ayarı gerekir.');end(true)}};
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));pc.onicecandidate=e=>e.candidate&&S(to,'ice',e.candidate.toJSON());pc.ontrack=e=>{$('rv').srcObject=e.streams[0];$('ra').srcObject=e.streams[0];$('ra').play().catch(()=>{})};
+  $('lv').srcObject=stream;$('vid').style.display=video?'block':'none';$('ce').style.display='inline-block';return true}
+async function call(v){if(!cur||cur[0]=='#'||pc)return;if(!await mk(cur,v))return;const o=await pc.createOffer();await pc.setLocalDescription(o);S(cur,'offer',{sdp:o,video:v})}
+$('ca').onclick=()=>call(false);$('cv').onclick=()=>call(true);
+function end(n){cq=[];if(n&&cur)S(cur,'end');pc&&pc.close();pc=null;stream&&stream.getTracks().forEach(t=>t.stop());stream=null;$('vid').style.display=$('inc').style.display='none';$('ce').style.display='none';pend=null}
+$('ce').onclick=()=>end(true);
+async function sig(s){const d=s.data||{};
+  if(s.kind=='offer'){if(pc){S(s.from,'end');return}pend={from:s.from,d};$('it').textContent='@'+s.from+' arıyor ('+(d.video?'görüntülü':'sesli')+')';$('inc').style.display='flex'}
+  else if(s.kind=='answer'&&pc){await pc.setRemoteDescription(d.sdp);cq.forEach(c=>pc.addIceCandidate(c));cq=[]}
+  else if(s.kind=='ice'){pc&&pc.remoteDescription?pc.addIceCandidate(d):cq.push(d)}
+  else if(s.kind=='end')end(false)}
+$('ia').onclick=async()=>{if(!pend)return;const{from,d}=pend;$('inc').style.display='none';if(!await mk(from,d.video)){S(from,'end');return}
+  await pc.setRemoteDescription(d.sdp);cq.forEach(c=>pc.addIceCandidate(c));cq=[];const a=await pc.createAnswer();await pc.setLocalDescription(a);S(from,'answer',{sdp:a});pend=null;open(from)};
+$('id').onclick=()=>{if(pend)S(pend.from,'end');pend=null;$('inc').style.display='none'};
+try{Notification.requestPermission()}catch(e){}
+connect();
+</script></body></html>
